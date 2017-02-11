@@ -4,6 +4,11 @@
 
 //Powers
 #define CSpeed 50
+#define CSpeedForwards 50
+#define CSpeedBackwards 20
+#define CSingleSensorFoward 40
+#defien CWhiteForwards 70
+
 
 //Rotations
 #define CRotation 1
@@ -40,25 +45,25 @@ void setup()
     GLLightSensor.setReflected();
 }
 
-void SingleSensorLineFollow(int APort1, int APort2, int AForwardBack, int ASpeed,  EVs_NXTLight CRLS)
+void SingleSensorLineFollow(int APort1, int APort2, int AForwardBack,  EVs_NXTLight CRLS)
 {
     int LLightValue;
     int LThreshold = 960; // NOTE, CALIBRATE THIS LATER
 
     LLightValue = CRLS.readRaw();
     if (LLightValue < LThreshold){
-        GEVShield.bank_b.motorRunUnlimited(APort1,AForwardBack,ASpeed); 
+        GEVShield.bank_b.motorRunUnlimited(APort1,AForwardBack,CSingleSensorFoward ); 
         GEVShield.bank_b.motorStop(APort2,SH_Next_Action_Brake);
     } 
     else {
-        GEVShield.bank_b.motorRunUnlimited(APort2,AForwardBack,ASpeed);
+        GEVShield.bank_b.motorRunUnlimited(APort2,AForwardBack,CSingleSensorFoward );
         GEVShield.bank_b.motorStop(APort1, SH_Next_Action_Brake);
         
     } 
     delay(50);   
 }
 
-void SingleSensorLineFollowTest()
+/*void SingleSensorLineFollowTest()
 {
 
     int LLightValue;
@@ -76,13 +81,19 @@ void SingleSensorLineFollowTest()
         GEVShield.bank_b.motorRunUnlimited(SH_Motor_2, SH_Direction_Reverse, LMotorPowerOutside);
         GEVShield.bank_b.motorStop(SH_Motor_1, SH_Next_Action_Brake);
         // GEVShield.bank_b.motorRunUnlimited(SH_Motor_1, SH_Direction_Forward, LMotorPowerInside);  // Comment the line above, and uncomment this line for sharper turns
-    }
+    }*/
 
   
 }
 void OffMotor (int Port)
 {
 GEVShield.bank_b.motorStop(Port, SH_Next_Action_Brake);
+}
+
+void OffBothMotors()
+{
+GEVShield.bank_b.motorStop(CMotorL, SH_Next_Action_Brake);
+GEVShield.bank_b.motorStop(CMotorR, SH_Next_Action_Brake);
 }
 
 void RunMotor(int Port, int ForwardBack , int Speed) {
@@ -112,6 +123,42 @@ RunMotor(MotorPort2,
         ForwardBack, 
         Speed);
 }
+
+void TurnMotors(int MotorForward, int MotorBack){
+ RunMotor(MotorForward, 
+        CForwards, 
+        SpeedForwards);
+delay(1);
+ RunMotor(MotorBack, 
+        CBackwards, 
+        SpeedReverse);
+}
+
+void TwoSensorLineFollow()
+{
+    int LLLightValue;
+    int LRLightValue
+    int LThreshold = 960; // NOTE, CALIBRATE THIS LATER
+
+    LRLightValue = CRLS.readRaw();
+    LLLightValue = CLLS.readRaw();
+    if (LLLightValue <= LThreshold && LRightValue <= LThreshold){
+        /*GEVShield.bank_b.motorRunUnlimited(APort1,AForwardBack,ASpeed); 
+        GEVShield.bank_b.motorStop(APort2,SH_Next_Action_Brake);*/
+      OffBothMotors();
+    } 
+    else if (LLLightValue <= LThreshold && LRightValue > LThreshold) {
+      TurnMotors(CMotorRight, CMotorLeft);  
+    }
+
+    else if(LLLightValue <= LThreshold && LRightValue > LThreshold {
+       TurnMotors(CMotorLeft, CMotorRight);  
+    }
+
+    else{
+     RunTwoMotors(CMotorRight, CMotorLeft, CForward , CWhiteForwards); 
+    }
+
 
 
 void loop()
